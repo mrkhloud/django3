@@ -1,19 +1,20 @@
 from rest_framework import generics, views, viewsets, decorators
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 from . import models, serializers, permissions
 
+from ..base.services import ApiListPagination
 
-class MyViewSet(viewsets.ModelViewSet):
-    queryset = models.Article.objects.all()
-    serializer_class = serializers.MySerializer
-
-    @decorators.action(methods=['get'], detail=False)
-    def categories(self, request):
-        categories = models.Category.objects.all()
-        categories_names = [category.name for category in categories]
-        return Response(categories_names)
+# class MyViewSet(viewsets.ModelViewSet):
+#     queryset = models.Article.objects.all()
+#     serializer_class = serializers.MySerializer
+#
+#     @decorators.action(methods=['get'], detail=False)
+#     def categories(self, request):
+#         categories = models.Category.objects.all()
+#         categories_names = [category.name for category in categories]
+#         return Response(categories_names)
 
 
 # class MyApiView(generics.ListAPIView):
@@ -68,7 +69,7 @@ class MyViewSet(viewsets.ModelViewSet):
 class MyApiViewList3(generics.ListCreateAPIView):
     queryset = models.Article.objects.all()
     serializer_class = serializers.MySerializer
-    # permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = ApiListPagination
 
 
 class MyApiViewDetail3(generics.RetrieveUpdateDestroyAPIView):
@@ -86,4 +87,8 @@ class MyApiViewUpdate3(generics.RetrieveUpdateAPIView):
 class MyApiDeleteView3(generics.RetrieveDestroyAPIView):
     queryset = models.Article.objects.all()
     serializer_class = serializers.MySerializer
-    permission_classes = (permissions.IsAdminOrReadOnly,)
+
+    """
+    Если в Detail доступ только для хозяина, то даже админ не может удалять чужие записи
+    """
+    # permission_classes = (permissions.IsAdminOrReadOnly,)
